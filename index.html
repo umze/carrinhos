@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Speed Racer</title>
+    <!-- Lib -->
+    <script src="./lib/p5.min.js"></script>
+    <script src="./lib/p5.dom.min.js"></script>
+    <script src="./lib/p5.sound.min.js"></script>
+    <script src="./lib/p5.play.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+    
+    <script src="./js/Game.js"></script>
+    <script src="./js/Form.js"></script>
+    <script src="./js/Player.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-database.js"></script>
+
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVkYCGSaHtDVe4irafDy23Pl_oEu8px_A",
+      authDomain: "jogo-desjogavel.firebaseapp.com",
+      projectId: "jogo-desjogavel",
+      storageBucket: "jogo-desjogavel.appspot.com",
+      messagingSenderId: "118071321055",
+      appId: "1:118071321055:web:6bf59c47926db0fc4d246a"
+    };
+    firebase.initializeApp(firebaseConfig);
+   </script>
+
+  </head>
+  <body>
+    
+    <script src="./sketch.js"></script>
+  </body>
+</html>
