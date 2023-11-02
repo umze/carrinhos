@@ -14,14 +14,19 @@ canvas {
 }
 
 .gameTitle{
-  width: 75%;
+  width: 300px;
   height: 80px;
+}
+
+.gameTitleAfterEffect{
+  width: 400px;
+  height: 100px;
 }
 
 .greeting{
   font-size: 40px;
   color: white;
-  font-family: vollkorn;
+  font-family: 'Bebas Neue', sans-serif;
   text-align: center;
 }
 

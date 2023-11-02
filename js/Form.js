@@ -31,10 +31,12 @@ class Form {
       this.input.hide();
       var message = `
       Olá, ${this.input.value()}
-      </br>Enquanto estamos procurando alguém para jogar isso, mande nesse e-mail
+      </br>Enquanto estamos procurando alguém para jogar isso, 
+      </br>mande nesse e-mail
       </br>leonardopulzi@gmail.com
       </br>as seguintes informações:
-      </br>Seu RG, seu CPF, seu endereço, seu cartão de crédito, seu nome, email, numero de telfone e um pix de 1 centavo com um pão de queijo garantido :)
+      </br>Seu RG, seu CPF, seu endereço, 
+      </br>seu cartão de crédito, seu nome, email, numero de telfone e um pix de 1 centavo com um pão de queijo garantido :)
       </br> Isso é só uma verificação básica, aproveite esse jogo ruim`
       this.greeting.html(message);
       playerCount += 1;
@@ -42,6 +44,7 @@ class Form {
       player.index = playerCount;
       player.addPlayer();
       player.updateCount(playerCount);
+      player.getDistance();
     })
   }
 
