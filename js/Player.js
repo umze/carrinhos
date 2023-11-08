@@ -6,6 +6,7 @@ class Player {
     this.positionY = 0;
     this.rank = 0;
     this.score = 0;
+    this.fuel = 185;
   }
     addPlayer() {
       var playerIndex = "players/player" + this.index;

@@ -1,5 +1,5 @@
 var canvas;
-var backgroundImage, car1_img, car2_img, track_img;
+var backgroundImage, car1_img, car2_img, track_img, fuel_img, coin_img, obstacle1_img, obstacle2_img;
 var bgImg;
 var database;
 var form, player;
@@ -10,12 +10,17 @@ var car1;
 var car2;
 var cars = [];
 var track;
+var fuels, coins, obstacles;
 
 function preload() {
   backgroundImage = loadImage("./assets/planodefundo.png");
   car1_img = loadImage("./assets/car1.png")
   car2_img = loadImage("./assets/car2.png")
   track_img = loadImage("./assets/pista.png")
+  fuel_img = loadImage("./assets/fuel.png")
+  coin_img = loadImage("./assets/goldCoin.png")
+  obstacle1_img = loadImage("./assets/obstacle1.png")
+  obstacle2_img = loadImage("./assets/obstacle2.png")
 }
 
 function setup() {
