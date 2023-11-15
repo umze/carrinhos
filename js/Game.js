@@ -144,7 +144,8 @@ class Game {
         player.rank += 1;
         Player.updateCarsAtEnd(player.rank);
         player.update();
-        if(this.rank === 1) {
+        console.log(player.rank)
+        if(player.rank === 1) {
           this.showRank();
         }
         else {
