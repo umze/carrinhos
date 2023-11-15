@@ -5,6 +5,9 @@ class Game {
     this.leaderboardTitle = createElement("h2");
     this.leader1 = createElement("h2");
     this.leader2 = createElement("h2");
+    this.playerMoving = false;
+    this.leftKeyActive = false;
+    this.boom = false;
   }
     getState() {
     var gameStateRef = database.ref("gameState")
@@ -25,12 +28,14 @@ class Game {
     form = new Form();
     form.display();
     car1 = createSprite(width / 2 - 50, height - 100);
-    car1.addImage("car1",car1_img)
-    car1.scale = 0.07
+    car1.addImage("car1",car1_img);
+    car1.scale = 0.07;
+    car1.addImage("boom", boom_img)
     car2 = createSprite(width / 2 + 100, height - 100);
-    car2.addImage("car2",car2_img)
-    car2.scale = 0.07
-    cars = [car1,car2]
+    car2.addImage("car2",car2_img);
+    car2.scale = 0.07;
+    car2.addImage("boom", boom_img)
+    cars = [car1,car2];
     fuels = new Group();
     coins = new Group();
     obstacles = new Group();
@@ -95,16 +100,23 @@ class Game {
     this.handleElements();
     this.handleResetButton();
     Player.getPlayersInfo();
-
+    player.getCarsAtEnd();
 
     if(allPlayers !== undefined) {
       image(track_img, 0, - height * 5, width, height * 6);
+      this.showLife();
+      this.showFuel();
       this.showLeaderboard();
       var index = 0;
       for(var plr in allPlayers) {
         index = index + 1;
         var x = allPlayers[plr].positionX;
         var y = height - allPlayers[plr].positionY;
+        var currentLife = allPlayers[plr].life;
+        if(currentLife <= 0) {
+          cars[index - 1].changeImage("boom");
+          cars[index - 1].scale = 0.3;
+        }
         cars [index - 1].position.x = x;
         cars [index - 1].position.y = y;
         if(index === player.index) {
@@ -113,42 +125,87 @@ class Game {
           ellipse(x,y,60,60);
           this.handleFuel(index);
           this.handleCoins(index);
-          camera.position.x = cars[index - 1].position.x;
+          this.handleObstacleCollision(index);
+          this.handleCarsCollision(index);
+          if(player.life <= 0) {
+            this.boom = true;
+            this.playerMoving = false;
+          }
+
+          //camera.position.x = cars[index - 1].position.x;
           camera.position.y = cars[index - 1].position.y;
         }
       }
       this.handlePlayerControls();
+      const finishLine = height * 6 - 100;
+
+      if(player.positionY > finishLine) {
+        gameState = 2;
+        player.rank += 1;
+        Player.updateCarsAtEnd(player.rank);
+        player.update();
+        this.showRank();
+      }
+
       drawSprites();
     }
   }
 
   handlePlayerControls() {
-    if(keyIsDown(32)) {
-      player.positionY += 10;
-      player.update();
+    if(!this.boom) {
+      if(keyIsDown(32)) {
+        this.playerMoving = true;
+        player.positionY += 10;
+        player.update();
+      }
+
+      if(keyIsDown(37) && player.positionX > width / 3 - 50) {
+        this.leftKeyActive = true;
+        player.positionX -= 5;
+        player.update();
+      }
+
+      if(keyIsDown(39) && player.positionX < width / 3 + 300) {
+        this.leftKeyActive = true;
+        player.positionX += 5;
+        player.update();
+      }
     }
 
-    if(keyIsDown(37)) {
-      player.positionX -= 5;
-      player.update();
-    }
-
-    if(keyIsDown(39)) {
-      player.positionX += 5;
-      player.update();
-    }
   }
-
+  
   handleResetButton() {
     this.resetButton.mousePressed(() => {
       database.ref("/").set({
-        carAtEnd: 0,
         playerCount: 0,
         gameState: 0,
-        players: {}
+        players: {},
+        carsAtEnd: 0
       })
       window.location.reload();
     })
+  }
+
+  showLife() {
+    push();
+    image(life_img, width / 2 - 130, height - player.positionY + 100, 20, 20);
+    fill("#4682B4");
+    rect(width / 2 - 100, height - player.positionY + 100, 185, 20);
+    fill("#8B0000")
+    rect(width / 2 - 100, height - player.positionY + 100, player.life, 20);
+    noStroke();
+    pop();
+  }
+
+  showFuel() {
+    push();
+    image(fuel_img, width / 2 - 130, height - player.positionY + 130, 20, 20);
+    fill("#9932CC");
+    rect(width / 2 - 100, height - player.positionY + 130, 185, 20);
+    fill("#00CED1")
+    rect(width / 2 - 100, height - player.positionY + 130, player.fuel, 20);
+    noStroke();
+    pop();
   }
 
   showLeaderboard() {
@@ -174,6 +231,13 @@ class Game {
       player.fuel = 185;
       collected.remove();
     })
+    if(player.fuel > 0 && this.playerMoving) {
+      player.fuel -= 0.3;
+    }
+    if(player.fuel <= 0) {
+      gameState = 2;
+      this.gameOver();
+    }
   }
 
   handleCoins(index) {
@@ -183,4 +247,86 @@ class Game {
       collected.remove();
     })
   }
+
+  handleObstacleCollision(index) {
+    if(cars[index - 1].collide(obstacles)) {
+      if(this.leftKeyActive) {
+        player.positionX += 100;
+      } 
+      else {
+        player.positionX -= 100;
+      }
+      if(player.life > 0) {
+        player.life -= 185 / 4;
+      }
+      if(player.life === 0) {
+        this.gameOver();
+      }
+      player.update();
+    }
+  }
+
+  handleCarsCollision(index) {
+    if(index === 1) {
+      if(cars[index - 1].collide(cars[1])) {
+        if(this.leftKeyActive) {
+          player.positionX += 100;
+        }
+        else {
+          player.positionX -= 100;
+        }
+        if(player.life > 0) {
+          player.life -= 185 / 185 - 1;
+          this.end();
+        }
+        player.update();
+      }
+    }
+
+    if(index === 2) {
+      if(cars[index - 1].collide(cars[0])) {
+        if(this.leftKeyActive) {
+          player.positionX += 100;
+        }
+        else {
+          player.positionX -= 100;
+        }
+        if(player.life > 0) {
+          player.life -= 185 / 185 - 1;
+          this.end();
+        }
+        player.update();
+      }
+    }
+  }
+
+  showRank() {
+    swal({
+      title: `BUALRABUAINS!!1!!!111!!!1!!!11!11! ${player.name} ${"\n"}${player.rank}° LUGARRRRRRR :)`,
+      text: "TU É PROPLAYER FI, BUALRABUIANS :) TU GANHASTE ISSO EBAAAAAAAAAA 🔥🔥🔥🔥🔥",
+      imageUrl: "https://i.pinimg.com/236x/90/1a/f7/901af78d5faeb7ad007e6dbf9eb3effc.jpg",
+      imageSize: "101x101",
+      confirmButtonText: "EBAAAAAAAAAAAAAAA, QUERO VIRAR MESTRE NO FREE FIRE :)"
+    })
+  }
+    gameOver() {
+      swal({
+        title: `${player.name} TU É UM BETA 🗿, TU PERDEU A CORRIDA :(`,
+        text: "Você perdeu 3 centavos por perder de acordo com os termos do jogo SEU BETA 🗿",
+        imageUrl: "https://w7.pngwing.com/pngs/409/24/png-transparent-beta-mathematics-greek-alphabet-wedding-fonts-cdr-text-shape.png",
+        imageSize: "100x100",
+        confirmButtonText: "VOU QUERER FICAR RANK COBRE :)"
+      })
+    }
+   
+    end() {
+      console.log("CABOUUUUUUUUUUUU");
+      swal({
+        title: `${player.name} VOCÊ (OU O OUTRO) DEU UM TAPINHA NO CARRO :(`,
+        text: "Você perdeu 3 centavos por morrer dessa forma de acordo com os termos do jogo SEU BETA 🗿",
+        imageUrl: "https://i.pinimg.com/236x/90/1a/f7/901af78d5faeb7ad007e6dbf9eb3effc.jpg",
+        imageSize: "100x100",
+        confirmButtonText: "VOU QUERER FICAR RANK ?????? :)"
+      })
+    }
 }
