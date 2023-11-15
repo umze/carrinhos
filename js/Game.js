@@ -144,7 +144,12 @@ class Game {
         player.rank += 1;
         Player.updateCarsAtEnd(player.rank);
         player.update();
-        this.showRank();
+        if(this.rank === 1) {
+          this.showRank();
+        }
+        else {
+          this.gameOver();
+        }
       }
 
       drawSprites();
@@ -236,7 +241,7 @@ class Game {
     }
     if(player.fuel <= 0) {
       gameState = 2;
-      this.gameOver();
+      this.endFuel();
     }
   }
 
@@ -260,7 +265,7 @@ class Game {
         player.life -= 185 / 4;
       }
       if(player.life === 0) {
-        this.gameOver();
+        this.endBoom();
       }
       player.update();
     }
@@ -319,6 +324,26 @@ class Game {
       })
     }
    
+    endFuel() {
+      swal({
+        title: `${player.name} TU É UM BETA 🗿, TU PERDEU A GASOLINA :(`,
+        text: "Você perdeu 3 centavos por perder a gasolina de acordo com os termos do jogo SEU BETA 🗿",
+        imageUrl: "https://w7.pngwing.com/pngs/409/24/png-transparent-beta-mathematics-greek-alphabet-wedding-fonts-cdr-text-shape.png",
+        imageSize: "100x100",
+        confirmButtonText: "VOU QUERER FICAR RANK GASOLINA :)"
+      })
+    }
+
+    endBoom() {
+      swal({
+        title: `${player.name} TU É UM BETA 🗿, TU EXPLODIU :(`,
+        text: "Você perdeu 3 centavos por morrer dessa forma de acordo com os termos do jogo SEU BETA 🗿",
+        imageUrl: "https://w7.pngwing.com/pngs/409/24/png-transparent-beta-mathematics-greek-alphabet-wedding-fonts-cdr-text-shape.png",
+        imageSize: "100x100",
+        confirmButtonText: "VOU QUERER FICAR RANK TNT DO MINECRAFT :)"
+      })
+    }
+
     end() {
       console.log("CABOUUUUUUUUUUUU");
       swal({
